@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
+import json
+import sys
+import random
+
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import json
-import sys
-import random
 from tornado.options import options, define
+
 from src.utils import utilities
 
 
@@ -112,7 +114,42 @@ class LoginUser(tornado.web.RequestHandler):
 
 
 class AddInfo(tornado.web.RequestHandler):
-    pass
+    def post(self):
+        try:
+            files_data = utilities.UploadConfig().get_config()
+            if len(files_data) > 0 :
+                logs = utilities.Logs(files_data[0])
+            else:
+                raise utilities.nodata
+
+            user_id =  self.get_argument("user_id")
+            build_size = self.get_argument("size_build")
+            build_age = self.get_argument("age")
+            bedrooms = self.get_argument("bedrooms")
+            toilets = self.get_argument("toilets")
+            parking = self.get_argument("parking")
+            floors = self.get_argument("floors")
+            maintenance = self.get_argument("maintenance")
+            condition = self.get_argument("condition")
+            location = self.get_argument("location")
+            photo = self.get_argument("photo")
+
+            db = utilities.DataBase(files_data[0], files_data[1])
+            table = "depatament_income"
+            statements =""
+            provisory =""
+
+            db.insertion()
+
+
+        except IOError:
+            self.write(json.dumps(['session:', {'id': (None)},
+                                           'message:', {'state': ("500",
+                                                                  "An unexpected error happened")}]))
+            self.logs.error_log("An unexpected error happened:  {1}\n" \
+                "Error: {0}".format(str(sys.exc_info()[0])))
+
+
 class TestServer(tornado.web.RequestHandler):
     def get(self):
         greeting = self.get_argument('', json.dumps(['session:', {'id': (None)},
