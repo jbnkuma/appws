@@ -54,7 +54,7 @@ class AddUser(tornado.web.RequestHandler):
                 provisory = ("(?, ?, ?)")
                 data = (random.randrange(100), user, password)
                 result = db.insertion(table, statements, provisory, data)
-                if result == "ok":
+                if result[0] == "ok":
                     self.write(json.dumps(['message:', {'state': ("200", "User successfully registered")}]))
                 else:
                     self.write(json.dumps(['message:', {'state': ("300",
@@ -136,11 +136,28 @@ class AddInfo(tornado.web.RequestHandler):
 
             db = utilities.DataBase(files_data[0], files_data[1])
             table = "depatament_income"
-            statements =""
-            provisory =""
+            statements = "  id, m_construccion, Edad,N_recamaras, N_servicios, " \
+                         + "Niveles_construidos, cuota_m, edo_edificio, ubicacion, id_usuario"
 
-            db.insertion()
+            provisory = " (?, ?, ? ,?, ?, ?, ?, ?, ?, ?,?)"
 
+            data = (random.randrange(100), build_size, build_age, bedrooms, toilets, parking, floors,
+            maintenance, condition, location, user_id)
+
+            result = db.insertion(table, statements, provisory, data)
+
+            if result[0] == "ok":
+
+                table = "photos"
+                statements = "  id, id_apartamento, file, "
+                provisory = "( ?, ?, ?)"
+                data = ( random.randrange(100), result[1], photo)
+                db.insertion(table, statements, provisory, data)
+
+
+            else:
+                self.write(json.dumps(['message:', {'state': ("300",
+                                                                  "An unexpected error has occurred try again")}]))
 
         except IOError:
             self.write(json.dumps(['session:', {'id': (None)},

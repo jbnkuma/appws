@@ -91,9 +91,11 @@ class DataBase:
 #            self.write_logs.info_log(statement)
 #            self.write_logs.info_log(data)
             cursor.execute(statement, data)
+            con = cursor.getconnection()
+            last_id = con.last_insert_rowid()
             cursor.close()
             connection.close()
-            return "ok"
+            return "ok", last_id
 
 
         except IOError:
